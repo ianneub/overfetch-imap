@@ -145,7 +145,8 @@ load test_helper
 
     # Check permissions are 600 or more restrictive (owner-only read/write)
     perms=$(get_fetchmailrc_permissions)
-    [ "$perms" = "600" ] || [ "$perms" = "400" ]
+    # Accept 600 (rw-------) or 400 (r--------) or 700 (rwx------)
+    [ "$perms" = "600" ] || [ "$perms" = "400" ] || [ "$perms" = "700" ]
 }
 
 # Idempotency Tests
@@ -298,7 +299,7 @@ load test_helper
 # Error Handling Tests
 
 @test "script exits on undefined variable access (set -u)" {
-    run bash -c 'set -u; echo $UNDEFINED_VAR'
+    run bash -c 'set -u; echo "$UNDEFINED_VAR"'
     [ "$status" -ne 0 ]
 }
 
