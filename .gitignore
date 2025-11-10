@@ -1,1 +1,5 @@
 .env
+
+# Test artifacts
+/test/tmp/
+*.bats.tmp

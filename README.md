@@ -74,6 +74,71 @@ All configuration is handled via environment variables. Copy [.env.example](.env
 
 **Note:** Both `URL` and `RAILS_MAIL_INBOUND_URL` work interchangeably.
 
+## Testing
+
+This project includes a comprehensive test suite for the bash entrypoint script using BATS (Bash Automated Testing System).
+
+### Installing BATS
+
+**macOS (Homebrew):**
+```bash
+brew install bats-core
+```
+
+**Ubuntu/Debian:**
+```bash
+sudo apt-get install bats
+```
+
+**Manual installation:**
+```bash
+git clone https://github.com/bats-core/bats-core.git
+cd bats-core
+sudo ./install.sh /usr/local
+```
+
+### Running Tests
+
+**Run all tests:**
+```bash
+bats test/entrypoint.bats
+```
+
+**Run tests with verbose output:**
+```bash
+bats test/entrypoint.bats --tap
+```
+
+**Run specific test:**
+```bash
+bats test/entrypoint.bats --filter "generates fetchmailrc"
+```
+
+### Test Coverage
+
+The test suite covers:
+- ✅ Fetchmailrc generation with valid environment variables
+- ✅ Missing required environment variables (fail gracefully)
+- ✅ Special character escaping (passwords with quotes, $, backticks)
+- ✅ KEEP variable behavior (present vs absent)
+- ✅ File permissions (umask 077 enforcement)
+- ✅ Jemalloc LD_PRELOAD detection
+- ✅ Command dispatch logic (default, fetchmail, flags, custom commands)
+- ✅ Idempotency (doesn't regenerate existing .fetchmailrc)
+- ✅ Error handling (set -euo pipefail validation)
+
+**Total test cases:** ~40 tests covering all critical paths in [bin/docker-entrypoint](bin/docker-entrypoint)
+
+### Test Structure
+
+```
+test/
+├── entrypoint.bats          # Main test suite
+├── test_helper.bash         # Shared setup/teardown functions
+└── fixtures/
+    └── .env.test            # Sample test environment variables
+```
+
 ## Usage
 
 ### Running the Service
