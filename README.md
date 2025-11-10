@@ -1,5 +1,7 @@
 # overfetch-imap
 
+[![Tests](https://github.com/ianneub/overfetch-imap/actions/workflows/test.yml/badge.svg)](https://github.com/ianneub/overfetch-imap/actions/workflows/test.yml)
+
 A lightweight, containerized IMAP email polling bridge that forwards emails to Rails Action Mailbox. This service continuously monitors an IMAP mailbox and forwards incoming emails to your Rails application's Action Mailbox ingress endpoint.
 
 ## What is this?
