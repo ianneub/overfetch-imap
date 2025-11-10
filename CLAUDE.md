@@ -35,7 +35,7 @@ docker compose down
 ### Manual Testing
 Test email ingress without running the full fetchmail daemon:
 ```bash
-bundle exec rake action_mailbox:ingress:postfix URL=$URL INGRESS_PASSWORD=$INGRESS_PASSWORD < email.eml
+bundle exec rake action_mailbox:ingress:postfix URL=$RAILS_MAIL_INBOUND_URL INGRESS_PASSWORD=$INGRESS_PASSWORD < email.eml
 ```
 
 This simulates what fetchmail does when it receives an email.
@@ -75,7 +75,7 @@ IMAP Server → Fetchmail (IDLE polling) → Rake Task (MDA) → Rails Action Ma
 All behavior is controlled via environment variables. See [.env.example](.env.example) for the full list.
 
 **Critical Variables:**
-- `URL` or `RAILS_MAIL_INBOUND_URL` - Rails Action Mailbox ingress endpoint
+- `RAILS_MAIL_INBOUND_URL` - Rails Action Mailbox ingress endpoint
 - `INGRESS_PASSWORD` - Authentication password for the ingress endpoint
 - `MAIL_SERVER`, `MAIL_PORT` - IMAP server connection details
 - `USERNAME`, `PASSWORD` - IMAP credentials
@@ -88,6 +88,23 @@ All behavior is controlled via environment variables. See [.env.example](.env.ex
 - [docker-compose.yml](docker-compose.yml) - Service definition with volume mounts for testing
 - [Rakefile](Rakefile) - Loads Action Mailbox rake tasks (no custom code)
 - [storage/](storage/) - Persistent directory for fetchmail state
+- [README.md](README.md) - User-focused documentation (for those using the GHCR Docker image)
+- [DEVELOPMENT.md](DEVELOPMENT.md) - Developer-focused documentation (for contributors and building from source)
+- [LICENSE](LICENSE) - MIT License
+
+## Documentation Updates
+
+**IMPORTANT:** Whenever you add, update, or delete any files in this repository, you MUST verify that both [README.md](README.md) and [DEVELOPMENT.md](DEVELOPMENT.md) remain accurate and up-to-date.
+
+- **README.md** is for end users who pull the pre-built Docker image from GHCR. It should focus on direct Docker commands only (no Docker Compose references).
+- **DEVELOPMENT.md** is for developers working with the source code. It includes build instructions, testing, Docker Compose usage, architecture details, and contributing guidelines.
+
+After making changes, review both documentation files to ensure:
+- File paths and references are still correct
+- New features or configuration options are documented
+- Removed features are no longer mentioned
+- Code examples still work with the changes
+- The documentation split (user vs developer focus) is maintained
 
 ## Testing Without Live IMAP
 
