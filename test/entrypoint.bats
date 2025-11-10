@@ -306,8 +306,9 @@ load test_helper
 # Error Handling Tests
 
 @test "script exits on undefined variable access (set -u)" {
-    run ! bash -c 'set -u; echo "$UNDEFINED_VAR"'
-    [ "$status" -eq 0 ]
+    run bash -c 'set -u; echo "$UNDEFINED_VAR"'
+    # Should exit with non-zero status due to undefined variable
+    [ "$status" -ne 0 ]
 }
 
 @test "script exits on command failure (set -e)" {
