@@ -1,0 +1,8 @@
+services:
+  overfetch-imap:
+    build: .
+    env_file:
+      - .env
+    environment:
+      KEEP: keep
+  

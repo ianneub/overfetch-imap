@@ -1,0 +1,28 @@
+# Ruby LSP and editor files
+.ruby-lsp/
+.vscode/
+.idea/
+
+# Git files
+.git/
+.gitignore
+
+# Environment files (sensitive data)
+.env
+.env.local
+.env.*.local
+
+# Documentation
+*.md
+README*
+
+# Test scripts (not needed in container)
+test.sh
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+tmp/
+*.log

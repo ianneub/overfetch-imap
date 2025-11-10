@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+# credit: https://medium.com/code-and-coffee/action-mailbox-imap-pop3-the-guide-i-wish-already-existed-cfc641fd4ba4
+set -euo pipefail
+# -e: exit on error
+# -u: error on undefined variables
+# -o pipefail: fail if any part of a pipeline fails
+
+# Ensure jemalloc is preloaded (better memory management for Ruby processes)
+if [ -z "${LD_PRELOAD+x}" ]; then
+    LD_PRELOAD=$(find /usr/lib -name libjemalloc.so.2 -print -quit)
+    export LD_PRELOAD
+fi
+
+# Restrict file permissions for security (owner-only read/write)
+umask 077
+
+# Generate fetchmail configuration file if it doesn’t exist yet
+if [ ! -f "${HOME}/.fetchmailrc" ]; then
+cat <<- EOF > ${HOME}/.fetchmailrc
+set no syslog
+set no bouncemail
+set idfile "/rails/storage/fetchmail.id"
+
+# Define IMAP polling with credentials passed from environment
+poll ${MAIL_SERVER} protocol imap port ${MAIL_PORT}
+    user "${USERNAME}" password "${PASSWORD}"
+    
+    # Pass incoming mail to Rails Action Mailbox ingress (via rake task)
+    mda "bundle exec rake action_mailbox:ingress:postfix URL=${RAILS_MAIL_INBOUND_URL} INGRESS_PASSWORD=${INGRESS_PASSWORD}"
+    
+    idle
+    ${KEEP}   # keep or delete messages depending on configuration
+    ssl       # enforce SSL/TLS for secure connections
+    sslcertck # verify server SSL certificate
+EOF
+fi
+
+arg="${1:-}"
+
+# Dispatch: if no argument is passed, default to running fetchmail
+case "$arg" in
+  "" )
+    exec fetchmail --nodetach --nosyslog
+    ;;
+  fetchmail)
+    shift
+    exec fetchmail --nodetach --nosyslog "$@"
+    ;;
+  -*)
+    exec fetchmail --nodetach --nosyslog "$@"
+    ;;
+  *)
+    exec "$@"
+    ;;
+esac
