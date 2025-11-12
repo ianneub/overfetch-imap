@@ -35,9 +35,10 @@ teardown() {
 # (doesn't execute the final exec commands)
 generate_fetchmailrc() {
     # Extract just the fetchmailrc generation portion
+    # Lines 9-43 include jemalloc setup, umask, and fetchmailrc generation with SSL logic
     bash -c "
         set -euo pipefail
-        $(sed -n '9,36p' "${ENTRYPOINT}")
+        $(sed -n '9,43p' "${ENTRYPOINT}")
     "
 }
 

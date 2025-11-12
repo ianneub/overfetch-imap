@@ -54,7 +54,42 @@ load test_helper
     assert_fetchmailrc_contains "mda \"bundle exec rake action_mailbox:ingress:postfix URL=${RAILS_MAIL_INBOUND_URL} INGRESS_PASSWORD=${INGRESS_PASSWORD}\""
 }
 
-@test "fetchmailrc contains SSL configuration" {
+@test "fetchmailrc contains SSL configuration by default" {
+    generate_fetchmailrc
+    assert_fetchmailrc_contains "ssl"
+    assert_fetchmailrc_contains "sslcertck"
+}
+
+@test "fetchmailrc contains SSL when DISABLE_SSL is empty" {
+    export DISABLE_SSL=""
+    generate_fetchmailrc
+    assert_fetchmailrc_contains "ssl"
+    assert_fetchmailrc_contains "sslcertck"
+}
+
+@test "fetchmailrc contains SSL when DISABLE_SSL is unset" {
+    unset DISABLE_SSL
+    generate_fetchmailrc
+    assert_fetchmailrc_contains "ssl"
+    assert_fetchmailrc_contains "sslcertck"
+}
+
+@test "fetchmailrc omits SSL when DISABLE_SSL is true" {
+    export DISABLE_SSL="true"
+    generate_fetchmailrc
+    assert_fetchmailrc_not_contains "ssl"
+    assert_fetchmailrc_not_contains "sslcertck"
+}
+
+@test "fetchmailrc contains SSL when DISABLE_SSL is false" {
+    export DISABLE_SSL="false"
+    generate_fetchmailrc
+    assert_fetchmailrc_contains "ssl"
+    assert_fetchmailrc_contains "sslcertck"
+}
+
+@test "fetchmailrc contains SSL when DISABLE_SSL is any value other than 'true'" {
+    export DISABLE_SSL="yes"
     generate_fetchmailrc
     assert_fetchmailrc_contains "ssl"
     assert_fetchmailrc_contains "sslcertck"

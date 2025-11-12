@@ -165,13 +165,15 @@ The test suite covers:
 - ✅ Missing required environment variables (fail gracefully)
 - ✅ Special character escaping (passwords with quotes, $, backticks)
 - ✅ KEEP variable behavior (present vs absent)
+- ✅ DISABLE_SSL variable behavior (true, false, empty, unset, other values)
+- ✅ SSL configuration (enabled by default, disabled when requested)
 - ✅ File permissions (umask 077 enforcement)
 - ✅ Jemalloc LD_PRELOAD detection
 - ✅ Command dispatch logic (default, fetchmail, flags, custom commands)
 - ✅ Idempotency (doesn't regenerate existing .fetchmailrc)
 - ✅ Error handling (set -euo pipefail validation)
 
-**Total test cases:** ~40 tests covering all critical paths in [bin/docker-entrypoint](bin/docker-entrypoint)
+**Total test cases:** ~45 tests covering all critical paths in [bin/docker-entrypoint](bin/docker-entrypoint)
 
 ### Test Structure
 
@@ -202,10 +204,26 @@ The service uses `storage/fetchmail.id` to track processed emails and prevent du
 ### Security Features
 
 - Runs as unprivileged user (UID/GID 1500)
-- SSL/TLS enforced with certificate verification
+- SSL/TLS enforced with certificate verification (configurable)
 - Restrictive file permissions (umask 077)
 - Jemalloc preloaded for memory safety
 - No root access inside container
+
+#### SSL/TLS Configuration
+
+By default, SSL/TLS is enabled with certificate verification for secure connections. For development or testing scenarios, you can disable SSL:
+
+**Environment variable:**
+- `DISABLE_SSL=true` - Disables SSL/TLS encryption (NOT RECOMMENDED for production)
+- Empty or unset (default) - Enables SSL/TLS with certificate verification
+
+**Use cases for disabling SSL:**
+- Testing with self-signed certificates
+- Local development environments
+- Debugging IMAP connection issues
+- Internal networks with unencrypted IMAP
+
+⚠️ **Security Warning**: Disabling SSL transmits credentials and email content in plain text over the network. Only use this in trusted development environments or for debugging purposes. Never disable SSL in production.
 
 ## Project Structure
 

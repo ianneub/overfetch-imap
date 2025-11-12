@@ -15,7 +15,7 @@ This project is based on the excellent guide: [Action Mailbox + IMAP/POP3: The G
 
 **Key Features:**
 - Real-time email forwarding using IMAP IDLE
-- Secure SSL/TLS with certificate verification
+- Secure SSL/TLS with certificate verification (can be disabled for testing)
 - Stateful processing to prevent duplicate emails
 - Docker-based deployment with health checks
 - Configurable email retention (keep or delete after processing)
@@ -85,10 +85,11 @@ All configuration is handled via environment variables. Copy [.env.example](.env
 | `RAILS_MAIL_INBOUND_URL` | Yes | Rails Action Mailbox ingress endpoint URL | `https://example.com/rails/action_mailbox/postfix/inbound_emails` |
 | `INGRESS_PASSWORD` | Yes | Authentication password for the ingress endpoint | `your-secret-password` |
 | `MAIL_SERVER` | Yes | IMAP server hostname | `imap.example.com` |
-| `MAIL_PORT` | Yes | IMAP server port (typically 993 for SSL) | `993` |
+| `MAIL_PORT` | Yes | IMAP server port (typically 993 for SSL, 143 for plain) | `993` |
 | `USERNAME` | Yes | IMAP account username | `user@example.com` |
 | `PASSWORD` | Yes | IMAP account password | `your-password` |
 | `KEEP` | No | Set to `keep` to retain emails on server; leave empty to delete after processing | `keep` or empty |
+| `DISABLE_SSL` | No | Set to `true` to disable SSL/TLS (**NOT RECOMMENDED for production**) | `true` or empty |
 
 ## Using Pre-built Docker Images
 
@@ -290,6 +291,22 @@ The service enforces certificate verification by default:
 - Verify your IMAP server has a valid SSL certificate
 - Check that `ca-certificates` are up-to-date in the container
 - Review fetchmail logs for specific SSL errors: `docker logs overfetch-imap`
+
+**For testing with self-signed certificates or insecure connections:**
+
+You can disable SSL by setting `DISABLE_SSL=true` in your environment:
+
+```bash
+docker run -d \
+  --name overfetch-imap \
+  --env-file .env \
+  -e DISABLE_SSL=true \
+  --restart unless-stopped \
+  -v ./storage:/home/fetchmail/storage \
+  ghcr.io/ianneub/overfetch-imap:latest
+```
+
+⚠️ **WARNING**: Disabling SSL transmits credentials and email content in plain text. Only use this for local development or testing with trusted networks. Never disable SSL in production environments.
 
 ### Performance Issues
 

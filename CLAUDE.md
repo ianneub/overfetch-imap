@@ -92,6 +92,27 @@ All behavior is controlled via environment variables. See [.env.example](.env.ex
 - [DEVELOPMENT.md](DEVELOPMENT.md) - Developer-focused documentation (for contributors and building from source)
 - [LICENSE](LICENSE) - MIT License
 
+## Testing Requirements
+
+**IMPORTANT:** Whenever you add new features or modify existing functionality, you MUST add corresponding BATS tests to verify the behavior.
+
+This project uses BATS (Bash Automated Testing System) to test the [bin/docker-entrypoint](bin/docker-entrypoint) script. Tests are located in [test/entrypoint.bats](test/entrypoint.bats).
+
+**Testing Guidelines:**
+
+- Add tests for new environment variables and their behavior (default values, edge cases)
+- Test both positive cases (feature works as expected) and negative cases (feature disabled, invalid values)
+- Test edge cases like empty strings, unset variables, special characters
+- Update the test coverage documentation in [DEVELOPMENT.md](DEVELOPMENT.md)
+- Run all tests locally before committing: `bats test/entrypoint.bats`
+- If you modify line numbers in the entrypoint script, update the `generate_fetchmailrc()` function in [test/test_helper.bash](test/test_helper.bash)
+
+**Test Helpers Available:**
+
+- `generate_fetchmailrc()` - Generates the fetchmailrc file for testing
+- `assert_fetchmailrc_contains()` - Asserts a string exists in the generated config
+- `assert_fetchmailrc_not_contains()` - Asserts a string does NOT exist in the generated config
+
 ## Documentation Updates
 
 **IMPORTANT:** Whenever you add, update, or delete any files in this repository, you MUST verify that both [README.md](README.md) and [DEVELOPMENT.md](DEVELOPMENT.md) remain accurate and up-to-date.

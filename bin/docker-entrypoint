@@ -14,8 +14,16 @@ fi
 # Restrict file permissions for security (owner-only read/write)
 umask 077
 
-# Generate fetchmail configuration file if it doesn’t exist yet
+# Generate fetchmail configuration file if it doesn't exist yet
 if [ ! -f "${HOME}/.fetchmailrc" ]; then
+# Determine SSL configuration
+SSL_CONFIG=""
+if [ "${DISABLE_SSL:-}" != "true" ]; then
+    # SSL enabled by default (secure)
+    SSL_CONFIG="ssl       # enforce SSL/TLS for secure connections
+    sslcertck # verify server SSL certificate"
+fi
+
 cat <<- EOF > ${HOME}/.fetchmailrc
 set no syslog
 set no bouncemail
@@ -24,14 +32,13 @@ set idfile "/rails/storage/fetchmail.id"
 # Define IMAP polling with credentials passed from environment
 poll ${MAIL_SERVER} protocol imap port ${MAIL_PORT}
     user "${USERNAME}" password "${PASSWORD}"
-    
+
     # Pass incoming mail to Rails Action Mailbox ingress (via rake task)
     mda "bundle exec rake action_mailbox:ingress:postfix URL=${RAILS_MAIL_INBOUND_URL} INGRESS_PASSWORD=${INGRESS_PASSWORD}"
-    
+
     idle
     ${KEEP}   # keep or delete messages depending on configuration
-    ssl       # enforce SSL/TLS for secure connections
-    sslcertck # verify server SSL certificate
+    ${SSL_CONFIG}
 EOF
 fi
 
